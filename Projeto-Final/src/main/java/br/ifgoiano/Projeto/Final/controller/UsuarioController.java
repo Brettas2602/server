@@ -1,7 +1,6 @@
 package br.ifgoiano.Projeto.Final.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +31,7 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     public UsuarioVO findById(@PathVariable Long id) {
-        Optional<Usuario> usuario = usuarioService.findById(id);
+        Usuario usuario = usuarioService.findById(id);
         return DozerMapper.parseObject(usuario, UsuarioVO.class);
     }
 
