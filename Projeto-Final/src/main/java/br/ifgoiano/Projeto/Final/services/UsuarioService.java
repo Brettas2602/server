@@ -22,7 +22,15 @@ public class UsuarioService {
         return usuarioRepository.findById(id).get();
     }
 
+    public Usuario findByEmail(String id) {
+        return usuarioRepository.findByEmail(id);
+    }
+
     public Usuario create(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
+    public Usuario update(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
 

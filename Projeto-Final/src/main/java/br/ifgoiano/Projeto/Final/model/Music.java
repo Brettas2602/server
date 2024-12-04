@@ -10,16 +10,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="musicas")
+@Table(name="musics")
 public class Music {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome", nullable=false, length = 25)
+    @Column(name = "nome", nullable=false, length = 255)
     private String nome;
 
-    @Column(name = "artista", nullable = false, length = 25)
+    @Column(name = "artista", nullable = false, length = 255)
     private String artista;
 
     @Column(name = "filename", nullable = false, length=255)

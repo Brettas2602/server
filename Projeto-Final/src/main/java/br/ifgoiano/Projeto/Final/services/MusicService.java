@@ -14,19 +14,23 @@ public class MusicService {
     private MusicRepository musicRepository;
 
     public List<Music> findAll() {
-        return musicRepository.findAll();
+        return musicRepository.findAllByOrderByIdAsc();
     }
 
     public List<Music> findAllByNome(String nome) {
         return musicRepository.findAllByNome(nome);
     }
 
-    public List<Music> findAllByArtista(String artista) {
-        return musicRepository.findAllByArtista(artista);
-    }
-
     public Music findById(Long id) {
         return musicRepository.findById(id).orElse(null);
+    }
+
+    public List<Music> findByCurtida(Boolean curtida) {
+        return musicRepository.findAllByCurtidaOrderByIdAsc(curtida);
+    }
+
+    public Music put(Music music) {
+        return musicRepository.save(music);
     }
 
     public Music create(Music music) {

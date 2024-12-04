@@ -14,15 +14,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import br.ifgoiano.Projeto.Final.mapper.DozerMapper;
@@ -33,8 +34,8 @@ import br.ifgoiano.Projeto.Final.vo.MusicUploadVO;
 import br.ifgoiano.Projeto.Final.vo.MusicVO;
 import jakarta.annotation.PostConstruct;
 
-@Controller
-@RequestMapping("/api/musics")
+@RestController
+@RequestMapping("api/musics")
 public class MusicController {
 
     private static final String UPLOAD_DIR = "public/uploads";
@@ -55,27 +56,23 @@ public class MusicController {
         List<Music> musics = musicService.findAll();
         return DozerMapper.parseListObjects(musics, MusicVO.class);
     }
+    
+    @GetMapping("/{id}")
+    public MusicVO findById(@PathVariable Long id) {
+        Music music = musicService.findById(id);
+        return DozerMapper.parseObject(music, MusicVO.class);
+    }
 
-    @RequestMapping("/search?nome")
+    @GetMapping("/curtidas")
+    public List<MusicVO> findByCurtida(){
+        List<Music> musics = musicService.findByCurtida(true);
+        return DozerMapper.parseListObjects(musics, MusicVO.class);
+    }
+    
+    @RequestMapping("/search")
     public List<MusicVO> findAllByNome(@RequestParam String nome) {
         List<Music> musics = musicService.findAllByNome(nome);
         return DozerMapper.parseListObjects(musics, MusicVO.class);
-    }
-
-    @RequestMapping("/search")
-    public List<MusicVO> findAllByArtista(@RequestParam String artista) {
-        List<Music> musics = musicService.findAllByArtista(artista);
-        return DozerMapper.parseListObjects(musics, MusicVO.class);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) throws IOException {
-        Music music = musicService.findById(id);
-        if (music != null) {
-            Path filePath = Paths.get(UPLOAD_DIR, music.getFileName());
-            Files.deleteIfExists(filePath);
-        }
-        musicService.delete(id);
     }
 
     @GetMapping("/download/{id}")
@@ -97,6 +94,22 @@ public class MusicController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header("Content-Disposition", "attachment; fileName=\"" + music.getFileName() + "\"")
                 .body(resource);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) throws IOException {
+        Music music = musicService.findById(id);
+        if (music != null) {
+            Path filePath = Paths.get(UPLOAD_DIR, music.getFileName());
+            Files.deleteIfExists(filePath);
+        }
+        musicService.delete(id);
+    }
+
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public MusicVO put(@RequestBody MusicVO music) {
+        Music musicEntity = DozerMapper.parseObject(music, Music.class);
+        return DozerMapper.parseObject(musicService.put(musicEntity), MusicVO.class);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -129,9 +142,10 @@ public class MusicController {
             Music musicEntity = new Music();
 
             musicEntity.setNome(music.getName());
+            musicEntity.setArtista(music.getArtista());
+            musicEntity.setCurtida(music.getCurtida());
             musicEntity.setFileName(newFileName);
             musicEntity.setCreatedAt(new Date());
-            musicEntity.setFileName(newFileName);
 
             MusicVO savedMusic = DozerMapper.parseObject(musicService.create(musicEntity), MusicVO.class);
 
